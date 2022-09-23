@@ -39,4 +39,11 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
+  describe('Given i am on error page', () => {
+    test('should show the error message', () => {
+      const html = BillsUI({ error: 'error message' })
+      document.body.innerHTML = html
+      expect(screen.getAllByText('error message')).toBeTruthy()
+    })
+  })
 })
