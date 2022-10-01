@@ -19,30 +19,44 @@ export default class NewBill {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
+    /*---------------------------------------------------------------------------------- */
+    const fileType = file.name.split(".").pop()
+    const extensions = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']
+    /*---------------------------------------------------------------------------------- */
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
+    /*---------------------------------------------------------------------------------- */
+    if (extensions.includes(fileType)) {
+    /*---------------------------------------------------------------------------------- */
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true
+          }
+        })
+        .then(({ fileUrl, key }) => {
+          console.log(fileUrl)
+          this.billId = key
+          this.fileUrl = fileUrl
+          this.fileName = fileName
+        })// .catch(error => console.error(error))
+  /*---------------------------------------------------------------------------------- */
+    } else {
+      const fileInput = this.document.querySelector('input[data-testid="file"]')
+      alert('Justificatif invalide')
+      fileInput.value = null;
+    }
+  /*---------------------------------------------------------------------------------- */
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    // console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
@@ -62,6 +76,7 @@ export default class NewBill {
   }
 
   // not need to cover this function by tests
+  // istanbul ignore next
   updateBill = (bill) => {
     if (this.store) {
       this.store
