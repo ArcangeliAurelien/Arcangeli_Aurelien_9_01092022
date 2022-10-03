@@ -77,81 +77,47 @@ describe("When I upload a wrong type file - non-image file", () => {
   })
 })
 
-// // INTEGRER TEST POST
+// INTEGRER TEST POST
 
-// describe("Given I am connected as Employee on NewBill page, and submit the form", () => {
-//   beforeEach(() => {
-//     jest.spyOn(mockStore, "bills");
+describe("When I submit a new valid bill", () => {
+  test("Then a new bill should be created", () => {
+    //On charge le dom avec la vue NewBill
+    document.body.innerHTML = NewBillUI()
+    // On récupère le formulaire
+    const submitForm = screen.getByTestId('form-new-bill')
+    // On créé un nouvel objet NewBill
+    const newBillClass = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage })
+    // On surveille son evenement de soumission
+    const handleSubmit = jest.fn(newBillClass.handleSubmit)
+    submitForm.addEventListener('submit', handleSubmit)
 
-//     Object.defineProperty(window, "localStorage", {
-//       value: localStorageMock,
-//     });
-//     window.localStorage.setItem(
-//       "user",
-//       JSON.stringify({
-//         type: "Employee",
-//         email: "a@a",
-//       })
-//     );
-//     const root = document.createElement("div");
-//     root.setAttribute("id", "root");
-//     document.body.append(root);
-//     router();
-//   });
+    // On créé une Bill avec des éléments valides
+    const newValidBill = {
+      type: "Transports",
+      name: "validBill",
+      date: "2022-07-01",
+      amount: 50,
+      vat: 70,
+      pct: 20,
+      fileUrl: "https://localhost:3456/images/test.jpg",
+      fileName: "test.jpg"
+    }
 
-//   describe("when APi is working well", () => {
-//     //alors je devrais être envoyé sur la page des factures avec les factures mises à jour
-//     test("then i should be sent on bills page with bills updated", async () => {
-//       const newBill = new NewBill({
-//         document,
-//         onNavigate,
-//         store: mockStore,
-//         localStorage: window.localStorageMock,
-//       });
+    // On rentre ces élement dans les champs du formulaire
+    document.querySelector(`select[data-testid="expense-type"]`).value = newValidBill.type
+    document.querySelector(`input[data-testid="expense-name"]`).value = newValidBill.name
+    document.querySelector(`input[data-testid="datepicker"]`).value = newValidBill.date
+    document.querySelector(`input[data-testid="amount"]`).value = newValidBill.amount
+    document.querySelector(`input[data-testid="vat"]`).value = newValidBill.vat
+    document.querySelector(`input[data-testid="pct"]`).value = newValidBill.pct
+    document.querySelector(`textarea[data-testid="commentary"]`).value = newValidBill.commentary
+    newBillClass.fileUrl = newValidBill.fileUrl
+    newBillClass.fileName = newValidBill.fileName
 
-//       const form = screen.getByTestId("form-new-bill");
-//       const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
-//       form.addEventListener("submit", handleSubmit);
+    // On soumet le formulaire
+    fireEvent.submit(submitForm)
 
-//       fireEvent.submit(form);
-
-//       expect(handleSubmit).toHaveBeenCalled();
-//       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
-//       expect(mockStore.bills).toHaveBeenCalled();
-//     });
-
-//     describe("When an error occurs on API", () => {
-//       //alors il devrait afficher un message d'erreur
-//       test("then it should display a message error", async () => {
-//         console.error = jest.fn();
-//         window.onNavigate(ROUTES_PATH.NewBill);
-//         mockStore.bills.mockImplementationOnce(() => {
-//           return {
-//             update: () => {
-//               return Promise.reject(new Error("Erreur 404"));
-//             },
-//           };
-//         });
-
-//         const newBill = new NewBill({
-//           document,
-//           onNavigate,
-//           store: mockStore,
-//           localStorage: window.localStorage,
-//         });
-
-//         const form = screen.getByTestId("form-new-bill");
-//         const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
-//         form.addEventListener("submit", handleSubmit);
-
-//         fireEvent.submit(form);
-
-//         expect(handleSubmit).toHaveBeenCalled();
-
-//         await waitFor(() => new Promise(process.nextTick));
-
-//         expect(console.error).toHaveBeenCalled();
-//       });
-//     });
-//   });
-// });
+    // On regarde si la soumission s'est bien effectuée
+    expect(handleSubmit).toHaveBeenCalled()
+  })
+})

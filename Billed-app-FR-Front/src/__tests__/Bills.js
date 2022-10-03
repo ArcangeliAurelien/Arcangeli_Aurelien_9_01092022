@@ -87,92 +87,84 @@ describe("Given I am connected as an employee", () => {
 })
 
 // INTEGRER TEST GET
-describe("Given I am a user connected as Employee", () => {
-  describe("When I navigate to Bills page", () => {
-    //récupère les factures à partir de l'API GET fictive
-    test("fetches bills from mock API GET", async () => {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ type: "Employee", email: "a@a" })
-      );
-      const root = document.createElement("div");
-      root.setAttribute("id", "root");
-      document.body.append(root);
-      router();
-      window.onNavigate(ROUTES_PATH.Bills);
-      await waitFor(() =>
-        expect(screen.getByText("Mes notes de frais")).toBeTruthy()
-      );
-    });
-    // Vérifie lorsqu'une erreur se produit sur l'API
+
+describe("Given I am an user connected as Employee", () => {
+  describe("When I am on the Bills Page", () => {
+    test("it should fetch bills from mock API GET", async () => {
+      // On recréé le dom pour le test
+      document.body.innerHTML = ""
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'a@a' }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      // On appelle le router
+      router()
+      // On précise sur quelle page on se trouve
+      window.onNavigate(ROUTES_PATH.Bills)
+      // On créé une promesse au prochain tick de l'API
+      await new Promise(process.nextTick)
+      // On recupère le tableau et toutes les bills qu'il contient
+      const tableBills = screen.getByTestId('tbody')
+      const arrayBills = tableBills.children
+
+      // On doit avoir 4 bills
+      expect(arrayBills.length).toBeGreaterThan(0)
+      expect(arrayBills.length).toBe(4)
+    })
+
+    // Test des erreurs d'API
     describe("When an error occurs on API", () => {
+      // Avant que le test commence
       beforeEach(() => {
-        jest.spyOn(mockStore, "bills");
-        Object.defineProperty(window, "localStorage", {
-          value: localStorageMock,
-        });
-        window.localStorage.setItem(
-          "user",
-          JSON.stringify({
-            type: "Employee",
-            email: "a@a",
-          })
-        );
-        const root = document.createElement("div");
-        root.setAttribute("id", "root");
-        document.body.appendChild(root);
-        router();
-      });
-      //récupère des factures à partir d'une API et échoue avec un message d'erreur 404
+        // On créé le dom, ainsi qu'un utilisateur de type Employee et on appelle le router
+        jest.spyOn(mockStore, "bills")
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+        window.localStorage.setItem('user', JSON.stringify({ type: 'Employee', email: 'a@a' }))
+        const root = document.createElement("div")
+        root.setAttribute("id", "root")
+        document.body.appendChild(root)
+        router()
+      })
+
+      // erreur 404
       test("fetches bills from an API and fails with 404 message error", async () => {
         mockStore.bills.mockImplementationOnce(() => {
           return {
             list: () => {
-              return Promise.reject(new Error("Erreur 404"));
-            },
-          };
-        });
-        window.onNavigate(ROUTES_PATH.Bills);
-        await waitFor(() => new Promise(process.nextTick));
-        const message = await waitFor(() => screen.getByText(/Erreur 404/));
-        expect(message).toBeTruthy();
-      });
-      //récupère les messages à partir d'une API et échoue avec une erreur de message 500
+              // Si erreur 404, la promesse est rejetée
+              return Promise.reject(new Error("Erreur 404"))
+            }
+          }
+        })
+
+        window.onNavigate(ROUTES_PATH.Bills)
+        await new Promise(process.nextTick);
+        const message = await screen.getByText(/Erreur 404/)
+        expect(message).toBeTruthy()
+      })
+
+      // Erreur 500
       test("fetches messages from an API and fails with 500 message error", async () => {
         mockStore.bills.mockImplementationOnce(() => {
           return {
             list: () => {
-              return Promise.reject(new Error("Erreur 500"));
-            },
-          };
-        });
-        window.onNavigate(ROUTES_PATH.Bills);
-        await waitFor(() => new Promise(process.nextTick));
-        const message = await waitFor(() => screen.getByText(/Erreur 500/));
-        expect(message).toBeTruthy();
-      });
-    });
-  });
-});
-describe("When I click on Nouvelle note de frais", () => {
-  // Vérifie l'apparation du formulaire de création de bills 
-  test("Then the form to create a new bill appear", async () => {
-    const onNavigate = (pathname) => {
-      document.body.innerHTML = ROUTES({ pathname })
-    }
-    Object.defineProperty(window, "localStorage", { value: localStorageMock })
-    window.localStorage.setItem("user", JSON.stringify({
-      type: "Employee"
-    }))
-    const initNewbill = new Bills({
-      document, onNavigate, store: null, localStorage: window.localStorage
+              // Si erreur 500, la promesse est rejetée
+              return Promise.reject(new Error("Erreur 500"))
+            }
+          }
+        })
+
+        window.onNavigate(ROUTES_PATH.Bills)
+        await new Promise(process.nextTick);
+        const message = await screen.getByText(/Erreur 500/)
+        expect(message).toBeTruthy()
+      })
+
+      // Après le test, on vide le dom
+      afterEach(() => {
+        document.body.innerHTML = ''
+      })
     })
-    document.body.innerHTML = BillsUI({ bills })
-    const handleClickNewBill = jest.fn(initNewbill.handleClickNewBill)
-    const btnNewBill = screen.getByTestId("btn-new-bill")
-    btnNewBill.addEventListener('click', handleClickNewBill)
-    userEvent.click(btnNewBill)
-    expect(handleClickNewBill).toHaveBeenCalled()
-    expect(screen.getByTestId("form-new-bill")).toBeTruthy()
   })
-})
+}) 
