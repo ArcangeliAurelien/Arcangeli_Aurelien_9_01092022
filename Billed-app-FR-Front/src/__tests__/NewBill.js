@@ -76,3 +76,82 @@ describe("When I upload a wrong type file - non-image file", () => {
     expect(btnFile.value).toBe('')
   })
 })
+
+// // INTEGRER TEST POST
+
+// describe("Given I am connected as Employee on NewBill page, and submit the form", () => {
+//   beforeEach(() => {
+//     jest.spyOn(mockStore, "bills");
+
+//     Object.defineProperty(window, "localStorage", {
+//       value: localStorageMock,
+//     });
+//     window.localStorage.setItem(
+//       "user",
+//       JSON.stringify({
+//         type: "Employee",
+//         email: "a@a",
+//       })
+//     );
+//     const root = document.createElement("div");
+//     root.setAttribute("id", "root");
+//     document.body.append(root);
+//     router();
+//   });
+
+//   describe("when APi is working well", () => {
+//     //alors je devrais être envoyé sur la page des factures avec les factures mises à jour
+//     test("then i should be sent on bills page with bills updated", async () => {
+//       const newBill = new NewBill({
+//         document,
+//         onNavigate,
+//         store: mockStore,
+//         localStorage: window.localStorageMock,
+//       });
+
+//       const form = screen.getByTestId("form-new-bill");
+//       const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
+//       form.addEventListener("submit", handleSubmit);
+
+//       fireEvent.submit(form);
+
+//       expect(handleSubmit).toHaveBeenCalled();
+//       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+//       expect(mockStore.bills).toHaveBeenCalled();
+//     });
+
+//     describe("When an error occurs on API", () => {
+//       //alors il devrait afficher un message d'erreur
+//       test("then it should display a message error", async () => {
+//         console.error = jest.fn();
+//         window.onNavigate(ROUTES_PATH.NewBill);
+//         mockStore.bills.mockImplementationOnce(() => {
+//           return {
+//             update: () => {
+//               return Promise.reject(new Error("Erreur 404"));
+//             },
+//           };
+//         });
+
+//         const newBill = new NewBill({
+//           document,
+//           onNavigate,
+//           store: mockStore,
+//           localStorage: window.localStorage,
+//         });
+
+//         const form = screen.getByTestId("form-new-bill");
+//         const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
+//         form.addEventListener("submit", handleSubmit);
+
+//         fireEvent.submit(form);
+
+//         expect(handleSubmit).toHaveBeenCalled();
+
+//         await waitFor(() => new Promise(process.nextTick));
+
+//         expect(console.error).toHaveBeenCalled();
+//       });
+//     });
+//   });
+// });
