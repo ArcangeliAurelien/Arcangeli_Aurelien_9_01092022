@@ -142,7 +142,7 @@ export default class {
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
       $(`#status-bills-container${this.index}`)
         .html("")
-      //this.counter ++
+      this.counter ++
     }
     
     // FIX DASHBOARD EVENT
